@@ -1,0 +1,53 @@
+import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+import statsmodels.api as sm
+#Import the required modules for test statistic calculation:
+import statsmodels.stats as sm_stat
+#Import the required modules for model estimation:
+import statsmodels.tsa as smt
+#Import the required modules for optimization:
+import scipy.optimize as optimize
+
+#We also need additional data:
+import statsmodels.formula.api as smf
+from  statsmodels.tsa.vector_ar.vecm import *
+from statsmodels.tsa.seasonal import seasonal_decompose
+
+
+dataset=pd.read_csv('RBU_AIR.csv')
+dataset.head(20)
+
+
+def lag(x, n):
+    if n == 0:
+        return x
+    if isinstance(x, pd.Series):
+        return x.shift(n) 
+    else:
+        x = pd.Series(x)
+        return x.shift(n) 
+
+    x = x.copy()
+    x[n:] = x[0:-n]
+    x[:n] = np.nan
+    return x
+    
+    
+    mod_L4_est = smf.ols(formula = 'PM ~ 1 + lag(CO, 0) + lag(CO, 1) + lag(CO, 2) + lag(CO, 3) + lag(CO, 4) + lag(CO, 5) + lag(CO, 6) + lag(CO, 7) \
+                     + lag(NO, 0) + lag(NO, 1) + lag(NO, 2) + lag(NO, 3) + lag(NO, 4) + lag(NO, 5) + lag(NO, 6) + lag(NO, 7) \
+                     + lag(NO2, 0) + lag(NO2, 1) + lag(NO2, 2) + lag(NO2, 3) + lag(NO2, 4) + lag(NO2, 5) + lag(NO2, 6) + lag(NO2, 7) \
+                     + lag(Nox, 0) + lag(Nox, 1) + lag(Nox, 2) + lag(Nox, 3) + lag(Nox, 4) + lag(Nox, 5) + lag(Nox, 6) + lag(Nox, 7) \
+                     + lag(NH3, 0) + lag(NH3, 1) + lag(NH3, 2) + lag(NH3, 3) + lag(NH3, 4) + lag(NH3, 5) + lag(NH3, 6) + lag(NH3, 7) \
+                     + lag(SO2, 0) + lag(SO2, 1) + lag(SO2, 2) + lag(SO2, 3) + lag(SO2, 4) + lag(SO2, 5) + lag(SO2, 6) + lag(SO2, 7) \
+                     + lag(CO, 0) + lag(CO, 1) + lag(CO, 2) + lag(CO, 3) + lag(CO, 4) + lag(CO, 5) + lag(CO, 6) + lag(CO, 7) \
+                     + lag(Ozone, 0) + lag(Ozone, 1) + lag(Ozone, 2) + lag(Ozone, 3) + lag(Ozone, 4) + lag(Ozone, 5) + lag(Ozone, 6) + lag(Ozone, 7) \
+                     + lag(Benzene, 0) + lag(Benzene, 1) + lag(Benzene, 2) + lag(Benzene, 3) + lag(Benzene, 4) + lag(Benzene, 5) + lag(Benzene, 6) + lag(Benzene, 7) \
+                     + lag(Toluene, 0) + lag(Toluene, 1) + lag(Toluene, 2) + lag(Toluene, 3) + lag(Toluene, 4) + lag(Toluene, 5) + lag(Toluene, 6) + lag(Toluene, 7) \
+                     + lag(Temperature, 0) + lag(RH, 0) + lag(WS, 0) + lag(WD, 0) + lag(SR, 0) + lag(BP, 0) + lag(VWS, 0)', data = dataset)
+mod_L4_fit = mod_L4_est.fit()
+print(mod_L4_fit.summary())
+
+
+print(np.round(mod_L4_fit.params, 4))
+print(np.round(mod_L4_fit.pvalues, 4))
